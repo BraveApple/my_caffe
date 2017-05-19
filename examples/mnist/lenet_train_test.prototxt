@@ -1,0 +1,149 @@
+name: "LeNet"
+layer {
+  name: "mnist"
+  type: "Data"
+  top: "data"
+  top: "label"
+  include {
+    phase: TRAIN
+  }
+  transform_param {
+    scale: 0.00390625
+  }
+  data_param {
+    source: "examples/mnist/mnist_train_lmdb"
+    batch_size: 32
+    backend: LMDB
+  }
+}
+layer {
+  name: "mnist"
+  type: "Data"
+  top: "data"
+  top: "label"
+  include {
+    phase: TEST
+  }
+  transform_param {
+    scale: 0.00390625
+  }
+  data_param {
+    source: "examples/mnist/mnist_test_lmdb"
+    batch_size: 16
+    backend: LMDB
+  }
+}
+
+################# Box Layer ###################
+
+layer {
+  name: "box1"
+  type: "Box"
+  bottom: "data"
+  top: "box1"
+
+  box_param {
+    box_height: 12
+    box_width: 12
+
+    param {
+      lr_mult: 1
+      decay_mult: 1
+    }
+
+    param {
+      lr_mult: 2
+      decay_mult: 0
+    }
+    
+    convolution_param {
+      num_output: 20
+      kernel_size: 5
+      stride: 1
+      pad: 2
+      weight_filler {
+        type: "gaussian"
+        std: 0.01
+      }
+      bias_filler {
+        type: "constant"
+        value: 0
+      }
+    }
+
+    pooling_param {
+      pool: MAX
+      kernel_size: 3
+      stride: 1
+      pad: 1
+    }
+  }
+}
+
+################# Box Layer ###################
+
+layer {
+  name: "ip1"
+  type: "InnerProduct"
+  bottom: "box1"
+  top: "ip1"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  inner_product_param {
+    num_output: 500
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "relu1"
+  type: "ReLU"
+  bottom: "ip1"
+  top: "ip1"
+}
+layer {
+  name: "ip2"
+  type: "InnerProduct"
+  bottom: "ip1"
+  top: "ip2"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  inner_product_param {
+    num_output: 10
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+layer {
+  name: "accuracy"
+  type: "Accuracy"
+  bottom: "ip2"
+  bottom: "label"
+  top: "accuracy"
+  include {
+    phase: TEST
+  }
+}
+layer {
+  name: "loss"
+  type: "SoftmaxWithLoss"
+  bottom: "ip2"
+  bottom: "label"
+  top: "loss"
+}
