@@ -312,7 +312,7 @@ message ParamSpec {
 // NOTE
 // Update the next available ID when you add a new LayerParameter field.
 //
-// LayerParameter next available layer-specific ID: 155 (last added: batch_relation_loss_param)
+// LayerParameter next available layer-specific ID: 156 (last added: center_loss_param)
 message LayerParameter {
   optional string name = 1; // the layer name
   optional string type = 2; // the layer type
@@ -367,32 +367,7 @@ message LayerParameter {
   optional AccuracyParameter accuracy_param = 102;
   optional ArgMaxParameter argmax_param = 103;
   optional BatchNormParameter batch_norm_param = 139;
-  optional BiasParameter bias_param = 141;
-
-  // added by wang
-  optional BoxParameter box_param = 147;
-
-  // added by wang
-  optional SplitMergeParameter split_merge_param = 148;
-
-  // added by wang
-  optional AccuracySigmoidParameter accuracy_sigmoid_param = 149;
-
-  // added by wang
-  optional MultiSigmoidCrossEntropyLossParameter multi_sigmoid_loss_param = 150;
-  
-  // added by wang
-  optional SpatialTransformerParameter spatial_transformer_param = 151;
-
-  // added by wang
-  optional SpatialTransformerLossParameter spatial_transformer_loss_param = 152;
-
-  // added by wang
-  optional RotateTransformerParameter rotate_transformer_param = 153;
-
-  // added by wang
-  optional OnlineBatchRelationLossParameter online_batch_relation_loss_param = 154;
-
+  optional BiasParameter bias_param = 141; 
   optional ConcatParameter concat_param = 104;
   optional ContrastiveLossParameter contrastive_loss_param = 105;
   optional ConvolutionParameter convolution_param = 106;
@@ -434,6 +409,18 @@ message LayerParameter {
   optional ThresholdParameter threshold_param = 128;
   optional TileParameter tile_param = 138;
   optional WindowDataParameter window_data_param = 129;
+
+  // added by wang
+  optional BoxParameter box_param = 147;
+  optional SplitMergeParameter split_merge_param = 148;
+  optional AccuracySigmoidParameter accuracy_sigmoid_param = 149;
+  optional MultiSigmoidCrossEntropyLossParameter multi_sigmoid_loss_param = 150;
+  optional SpatialTransformerParameter spatial_transformer_param = 151;
+  optional SpatialTransformerLossParameter spatial_transformer_loss_param = 152;
+  optional RotateTransformerParameter rotate_transformer_param = 153;
+  optional OnlineBatchRelationLossParameter online_batch_relation_loss_param = 154;
+  optional CenterLossParameter center_loss_param = 155;
+  optional LargeMarginInnerProductParameter largemargin_inner_product_param = 156;
 }
 
 // Message that stores parameters used to apply transformation
@@ -1503,4 +1490,35 @@ message OnlineBatchRelationLossParameter {
   optional float moving_average_fraction = 2 [ default = .99 ];
   optional float negative_threshold = 3 [ default = 0.2 ];
   optional float positive_threshold = 4 [ default = 0.8 ];
+}
+
+// added by wang
+message CenterLossParameter {
+  optional uint32 num_output = 1; // The number of outputs for layer
+  optional FillerParameter center_filler = 2; // The filler for the centers
+  /* The first axis to be lumped into a single inner product computation,
+  and all preceding axes are retained in the output. The negative axis is
+  indexed from the end
+  */
+  optional int32 axis = 3 [default = 1];
+}
+
+// added by wang
+message LargeMarginInnerProductParameter {
+  optional uint32 num_output = 1; // The number of outputs
+  enum LargeMarginType {
+    SINGLE = 0;
+    DOUBLE = 1;
+    TRIPLE = 2;
+    QUADRUPLE = 3;
+  }
+  optional LargeMarginType type = 2 [default = SINGLE]; // m in the L-Softmax loss
+  optional FillerParameter weight_filler = 3; // The filler for the weight
+  optional int32 axis = 4 [default = 1];
+  // base, gamma, power and lambda_min are parameters for exponential lambda descent
+  optional float base = 5 [default = 1];
+  optional float gamma = 6 [default = 0];
+  optional float power = 7 [default = 1];
+  optional int32 iteration = 8 [default = 0];
+  optional float lambda_min = 9 [default = 0];
 }
