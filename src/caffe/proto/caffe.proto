@@ -420,7 +420,8 @@ message LayerParameter {
   optional RotateTransformerParameter rotate_transformer_param = 153;
   optional OnlineBatchRelationLossParameter online_batch_relation_loss_param = 154;
   optional CenterLossParameter center_loss_param = 155;
-  optional LargeMarginInnerProductParameter largemargin_inner_product_param = 156;
+  optional BNParameter bn_param = 156;
+  optional LargeMarginInnerProductParameter largemargin_inner_product_param = 157;
 }
 
 // Message that stores parameters used to apply transformation
@@ -1501,6 +1502,24 @@ message CenterLossParameter {
   indexed from the end
   */
   optional int32 axis = 3 [default = 1];
+}
+
+// added by wang
+message BNParameter {
+  optional FillerParameter slope_filler = 1;
+  optional FillerParameter bias_filler = 2;
+  optional float momentum = 3 [default = 0.9];
+  optional float eps = 4 [default = 1e-5];
+  // If true, will use the moving average mean and std for training and test.
+  // Will override the lr_param and freeze all the parameters.
+  // Make sure to initialize the layer properly with pretrained parameters.
+  optional bool frozen = 5 [default = false];
+  enum Engine {
+    DEFAULT = 0;
+    CAFFE = 1;
+    CUDNN = 2;
+  }
+  optional Engine engine = 6 [default = DEFAULT];
 }
 
 // added by wang
